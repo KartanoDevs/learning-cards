@@ -1,0 +1,85 @@
+<section class="cards-wrap">
+  <div *ngIf="loading" class="state">
+    <p-progressSpinner styleClass="w-3rem h-3rem"></p-progressSpinner>
+  </div>
+
+  <p-message *ngIf="!loading && error" severity="error" [text]="error"></p-message>
+
+  <ng-container *ngIf="!loading && !error">
+    <ng-container *ngIf="cards.length; else empty">
+      <!-- Tarjeta (el servidor ya aplica reverse si corresponde) -->
+      <app-card
+        [card]="cards[0]"
+        (openImage)="openImageInModal($event)"
+      ></app-card>
+
+      <!-- ===== Barra de navegación con flechas ===== -->
+      <div class="navbar">
+        <button
+          type="button"
+          class="nav-btn"
+          (click)="goPrev()"
+          [disabled]="isFirstPage"
+          aria-label="Anterior"
+          title="Anterior"
+        >
+          <i class="pi pi-angle-left"></i>
+        </button>
+
+        <div class="nav-info">
+          <span class="page-chip">Registro {{ currentPage }} de {{ totalPages }}</span>
+        </div>
+
+        <button
+          type="button"
+          class="nav-btn"
+          (click)="goNext()"
+          [disabled]="isLastPage"
+          aria-label="Siguiente"
+          title="Siguiente"
+        >
+          <i class="pi pi-angle-right"></i>
+        </button>
+      </div>
+
+      <!-- Controles de consulta -->
+      <div class="controls">
+        <button type="button" class="btn" (click)="toggleShuffle()">
+          {{ shuffle ? 'Quitar Shuffle' : 'Shuffle' }}
+        </button>
+        <button type="button" class="btn" (click)="toggleReverse()">
+          {{ reverse ? 'Quitar Reverse' : 'Reverse' }}
+        </button>
+      </div>
+    </ng-container>
+
+    <ng-template #empty>
+      <div class="state empty">No hay tarjetas en este grupo.</div>
+    </ng-template>
+  </ng-container>
+
+  <!-- ===== Modal de imagen ===== -->
+  <p-dialog
+    [(visible)]="showImage"
+    [modal]="true"
+    [dismissableMask]="true"
+    [draggable]="false"
+    [resizable]="false"
+    header="Imagen"
+    [style]="{ width: 'min(92vw, 780px)' }"
+    [contentStyle]="{ padding: '0' }"
+    (onHide)="closeImageModal()"
+  >
+    <div class="image-modal">
+      <img
+        *ngIf="modalImageUrl; else noimg"
+        [src]="modalImageUrl!"
+        alt="Imagen de la tarjeta"
+        class="image"
+      />
+      <ng-template #noimg>
+        <div class="no-image">No hay imagen disponible</div>
+      </ng-template>
+    </div>
+  </p-dialog>
+</section>

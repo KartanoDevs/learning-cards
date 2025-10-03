@@ -1,0 +1,54 @@
+<section class="wrapper">
+  <header class="header">
+    <h2 class="title">Grupos</h2>
+
+    <div class="search">
+      <span class="icon">🔎</span>
+      <input
+        type="text"
+        placeholder="Buscar grupo..."
+        [(ngModel)]="search"
+        class="search-input"
+        aria-label="Buscar grupo"
+      />
+    </div>
+  </header>
+
+  <div *ngIf="loading" class="state">
+    <div class="spinner" aria-label="Cargando"></div>
+  </div>
+
+  <div *ngIf="!loading && errorMsg" class="state error">
+    {{ errorMsg }}
+  </div>
+
+  <div *ngIf="!loading && !errorMsg">
+    <div *ngIf="filtered.length === 0" class="state empty">
+      No hay grupos para mostrar.
+    </div>
+
+    <div class="grid">
+      <button
+        *ngFor="let g of filtered; trackBy: trackById"
+        type="button"
+        class="group-btn"
+        (click)="go(g)"
+        [title]="g.slug || g.name"
+      >
+        <div class="group-btn__content">
+          <img
+            *ngIf="g.iconUrl"
+            [src]="g.iconUrl"
+            alt=""
+            class="group-btn__icon"
+            loading="lazy"
+          />
+          <div class="group-btn__text">
+            <span class="group-btn__name">{{ g.name }}</span>
+            <span class="group-btn__slug" *ngIf="g.slug">{{ g.slug }}</span>
+          </div>
+        </div>
+      </button>
+    </div>
+  </div>
+</section>
