@@ -43,7 +43,7 @@ export class ListGroupsPage implements OnInit, OnDestroy {
   public hoveredGroupId: string | null = null;
   private dataSubscription?: Subscription;
 
-  public rows: number = 10;
+  public rows: number = 14;
   public currentPage: number = 1;
 
   ngOnInit(): void {

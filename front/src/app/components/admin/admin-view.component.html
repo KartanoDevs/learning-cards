@@ -12,7 +12,8 @@
       <!-- Elemento para Temas/Grupos (CON CAMBIOS) -->
       <div
         class="group-item"
-        (click)="selectedView = 'groups'"
+        [routerLink]="['/admin']"
+        [queryParams]="{ view: 'groups' }"
         [class.active]="selectedView === 'groups'"
         (mouseenter)="hoveredView = 'groups'"
         (mouseleave)="hoveredView = null"
@@ -35,7 +36,8 @@
       <!-- Elemento para Tarjetas (CON CAMBIOS) -->
       <div
         class="group-item"
-        (click)="selectedView = 'cards'"
+        [routerLink]="['/admin']"
+        [queryParams]="{ view: 'cards' }"
         [class.active]="selectedView === 'cards'"
         (mouseenter)="hoveredView = 'cards'"
         (mouseleave)="hoveredView = null"
@@ -61,12 +63,12 @@
   <!-- El contenido cambia según la vista seleccionada -->
   <main class="admin-content mt-2">
     <div [ngSwitch]="selectedView">
+
       <!-- Carga el componente de gestión de Grupos -->
       <app-admin-groups *ngSwitchCase="'groups'"></app-admin-groups>
 
       <!-- Carga el componente de gestión de Tarjetas -->
-      <div *ngSwitchCase="'cards'">MIAUUU</div>
-      <!-- <app-admin-cards *ngSwitchCase="'cards'"></app-admin-cards> -->
+      <app-admin-cards *ngSwitchCase="'cards'"></app-admin-cards>
     </div>
   </main>
 </div>

@@ -1,12 +1,14 @@
 import { Component, OnInit, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import { MessageService } from 'primeng/api';
 
 // Tu servicio y modelo
 import { GroupsService } from '../../../api/groups.service';
-import { Group } from '../../../api/models';
-
+import { CardsService } from '../../../api/cards.service';
+import { Group, Card } from '../../../api/models';
 // Módulos PrimeNG
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -25,6 +27,7 @@ import { CustomPaginatorComponent } from '../../shared/custom-paginator/custom-p
   imports: [
     CommonModule,
     FormsModule,
+    RouterModule,
     TableModule,
     ButtonModule,
     TagModule,
@@ -42,19 +45,21 @@ export class AdminGroupsComponent implements OnInit {
 
   @ViewChild('pTable') pTable!: Table;
 
+  private cardsService = inject(CardsService);
   private groupsService = inject(GroupsService);
   private messageService = inject(MessageService);
 
   allGroups: Group[] = [];
   filteredGroups: Group[] = [];
   paginatedGroups: Group[] = [];
+  cardCounts = new Map<string, number>();
   clonedGroups: { [s: string]: Group } = {};
 
   isAddingNewRow: boolean = false;
   searchTerm: string = '';
 
   // Propiedades para la paginación
-  rows: number = 10;
+  rows: number = 12;
   currentPage: number = 1;
 
   get totalRecords(): number {
@@ -66,20 +71,28 @@ export class AdminGroupsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadGroups();
+    this.loadData();
   }
 
-  loadGroups(): void {
-    this.groupsService.list().subscribe({
-      next: (data) => {
-        this.allGroups = data;
+  loadData(): void {
+    forkJoin({
+      groups: this.groupsService.list(),
+      cards: this.cardsService.list({ limit: 9999 })
+    }).subscribe({
+      next: ({ groups, cards }) => {
+        this.allGroups = groups;
+        this.calculateCardCounts(cards.data);
         this.filterGroups(); // Carga inicial y filtra
       },
       error: (_err: any) => {
-        // --- TOAST DE ERROR (Carga) ---
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los temas' });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los datos' });
       }
     });
+  }
+
+  private calculateCardCounts(cards: Card[]): void {
+    this.cardCounts.clear();
+    cards.forEach(card => this.cardCounts.set(card.groupId, (this.cardCounts.get(card.groupId) || 0) + 1));
   }
 
   filterGroups(): void {
@@ -179,7 +192,7 @@ export class AdminGroupsComponent implements OnInit {
           this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Tema creado' });
           delete this.clonedGroups[group._id];
           this.isAddingNewRow = false;
-          this.loadGroups();
+          this.loadData();
         },
         error: (err: any) => {
           // --- TOASTS DE ERROR (Crear) ---

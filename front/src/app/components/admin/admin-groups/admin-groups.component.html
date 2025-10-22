@@ -28,10 +28,20 @@
         ><i class="pi pi-times"></i></button>
       </div>
     </div>
-    <button pButton pRipple type="button" label="Añadir Tema" icon="pi pi-plus"
-            class="p-button-primary add-button"
-            (click)="addNewGroupRow()"
-            [disabled]="isAddingNewRow"></button>
+
+    <!-- Botón de Añadir con el nuevo estilo -->
+    <div class="add-item-container">
+      <div
+        class="group-item add-item"
+        role="button"
+        tabindex="0"
+        (click)="!isAddingNewRow && addNewGroupRow()"
+        [class.disabled]="isAddingNewRow"
+      >
+        <i class="pi pi-plus folder-icon"></i>
+        <span class="group-name">Añadir Tema</span>
+      </div>
+    </div>
   </div>
 
   <p-table
@@ -66,7 +76,7 @@
             <ng-template pTemplate="output">{{ group.description }}</ng-template>
           </p-cellEditor>
         </td>
-        <td class="text-center">0</td>
+        <td class="text-center">{{ cardCounts.get(group._id) || 0 }}</td>
         <td class="text-center">
           <p-tag [value]="group.enabled ? 'Sí' : 'No'" [severity]="group.enabled ? 'success' : 'danger'"></p-tag>
         </td>
@@ -84,6 +94,11 @@
                     (click)="manualCancel(group, ri)"></button>
 
             <button pButton pRipple type="button" [icon]="group.enabled ? 'pi pi-eye-slash' : 'pi pi-eye'" (click)="toggleGroupStatus(group)"></button>
+
+            <!-- Botón para ver/editar tarjetas del grupo -->
+            <button pButton pRipple type="button" icon="pi pi-table"
+                    class="p-button-rounded p-button-text"
+                    [routerLink]="['/admin']" [queryParams]="{ view: 'cards', groupId: group._id }"></button>
           </div>
         </td>
       </tr>
