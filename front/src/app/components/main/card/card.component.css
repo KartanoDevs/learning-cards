@@ -5,7 +5,8 @@
   place-items: center;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
 }
@@ -14,8 +15,8 @@ html, body {
 .card {
   margin-inline: auto;
   display: block;
-  width: 25vw;
-  height: 25vw;
+  width: 32vw;
+  height: 32vw;
   perspective: 1000px;
   cursor: pointer;
   user-select: none;
@@ -50,60 +51,51 @@ html, body {
   height: 100%;
   border-radius: 16px;
   backface-visibility: hidden;
-  /* background: #000; */
   overflow: hidden;
-  color: #fff;
+
+  /* Fondo blanco + texto negro */
+  background: #fff;
+  color: #000;
+
+  /* Simulación de borde degradado */
+  border: 12px solid transparent;
+  background-image: linear-gradient(#fff, #fff),
+    linear-gradient(-45deg, var(--brand-800) 0%, var(--brand-300) 100%);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
 }
 
 /* Cara frontal */
 .card-front {
-  display: flex;
+  display: block;
   justify-content: center;
-  align-items: center;
-  color:var(--brand-700);
-  /* background-color: var(--brand-400); */
 }
 
 /* Cara trasera → grid: heading centrado + iconos abajo */
 .card-back {
   transform: rotateY(180deg);
   padding: 20px;
-  display: grid;
-  grid-template-rows: 1fr auto; /* centra heading, iconos al fondo */
+  grid-template-rows: 1fr auto;
   justify-items: center;
   text-align: center;
 }
 
 .card-back .heading {
-  align-self: center; /* texto centrado verticalmente */
+  align-self: center;
 }
 
 .card-back .subtext,
 .card-back .icon-row {
-  align-self: end; /* pegado abajo */
+  align-self: end;
   margin-top: 0;
 }
 
-/* Fondos gradientes */
+/* Quitar pseudo-elementos antiguos */
 .card-front::before,
-.card-back::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 16px;
-  background: linear-gradient(-45deg, var(--brand-800) 0%, var(--brand-300) 100%);
-  z-index: -1;
-}
-
 .card-front::after,
+.card-back::before,
 .card-back::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 16px;
-  background: linear-gradient(-45deg, var(--brand-300) 0%, var(--brand-300) 100%);
-  filter: blur(20px);
-  z-index: -2;
+  content: none;
 }
 
 /* Texto */
@@ -112,6 +104,20 @@ html, body {
   font-weight: 800;
   text-align: center;
   margin: 0;
+  margin-top: 2%;
+  height: 10%;
+  margin-bottom: 7%;
+}
+.img {
+  height: 70%;
+  background-size: cover; /* cubre todo el contenedor */
+  background-position: center; /* centrado */
+  background-repeat: no-repeat; /* evita mosaico */
+  border-radius: 16px;
+  width: 95%;
+  margin-left: 2.5%;
+  margin-top: 5%;
+  display: inline-block;
 }
 
 .subtext {
@@ -127,7 +133,7 @@ html, body {
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  margin-top: .5rem;
+  margin-top: 0.5rem;
 }
 
 .action-btn {
@@ -140,7 +146,8 @@ html, body {
   border-radius: 12px;
   cursor: pointer;
   outline: none;
-  transition: background-color .15s ease, color .15s ease, box-shadow .2s ease, transform .12s ease, opacity .12s ease;
+  transition: background-color 0.15s ease, color 0.15s ease,
+    box-shadow 0.2s ease, transform 0.12s ease, opacity 0.12s ease;
 }
 
 .hover-fill:hover {
@@ -148,31 +155,43 @@ html, body {
   color: var(--accent);
 }
 
-.hover-ring { position: relative; }
+.hover-ring {
+  position: relative;
+}
 .hover-ring::after {
   content: "";
   position: absolute;
   inset: -6px;
   border-radius: 16px;
   pointer-events: none;
-  box-shadow: 0 0 0 0 rgba(0,0,0,0);
-  transition: box-shadow .2s ease;
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  transition: box-shadow 0.2s ease;
 }
 .hover-ring:hover::after {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
 .action-btn:focus-visible {
-  box-shadow: 0 0 0 3px rgba(59,130,246,.25), 0 0 0 1.5px var(--accent) inset;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25),
+    0 0 0 1.5px var(--accent) inset;
 }
-.action-btn:active { transform: translateY(1px); }
+.action-btn:active {
+  transform: translateY(1px);
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .action-btn { transition: none; }
-  .action-btn:active { transform: none; }
+  .action-btn {
+    transition: none;
+  }
+  .action-btn:active {
+    transform: none;
+  }
 }
 
 /* Responsive */
 @media (max-width: 640px) {
-  .card { width: min(80vw, 360px); height: min(80vw, 360px); }
+  .card {
+    width: min(80vw, 360px);
+    height: min(80vw, 360px);
+  }
 }

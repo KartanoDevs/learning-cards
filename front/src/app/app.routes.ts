@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { ListGroupsPage } from './pages/list-groups/list-groups.page';
 import { ListCardsComponent } from './pages/list-cards/list-cards.page';
+import { AdminViewComponent } from './components/admin/admin-view.component';
 
 export const routes: Routes = [
   {
@@ -15,8 +16,13 @@ export const routes: Routes = [
   },
 
   {
-    path: 'list-cards/:id',   // 👈 nueva ruta
+    path: 'list-cards/:id',
     component: ListCardsComponent
+  },
+
+    {
+    path: 'admin',
+    component: AdminViewComponent
   },
 
   {

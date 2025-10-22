@@ -3,6 +3,7 @@ import { Schema, model, Document } from 'mongoose';
 export interface GroupDoc extends Document {
   name: string;
   slug: string;
+  description: { type: String },
   iconUrl?: string | null;
   order?: number;
   enabled: boolean;
@@ -13,6 +14,7 @@ export interface GroupDoc extends Document {
 const GroupSchema = new Schema<GroupDoc>(
   {
     name: { type: String, required: true, trim: true },
+    description: { type: String, required: true, trim: true },
     slug: { type: String, required: true, trim: true, lowercase: true, unique: true },
     iconUrl: { type: String, default: null },
     order: { type: Number, default: 0 },

@@ -6,15 +6,34 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageModule } from 'primeng/message';
 import { DialogModule } from 'primeng/dialog';
 
-import { BehaviorSubject, Subject, combineLatest, switchMap, map, catchError, of, takeUntil } from 'rxjs';
+import {
+  BehaviorSubject,
+  Subject,
+  combineLatest,
+  switchMap,
+  map,
+  catchError,
+  of,
+  takeUntil,
+  fromEvent,
+} from 'rxjs';
 import { CardsService } from '../../api/cards.service';
 import type { PaginationMeta } from './../../api/models';
 import { CardComponent } from '../../components/main/card/card.component';
+import { CustomPaginatorComponent } from '../../components/shared/custom-paginator/custom-paginator.component';
+// --- 1. IMPORTAR EL NUEVO COMPONENTE ---
 
 @Component({
   selector: 'app-list-cards',
   standalone: true,
-  imports: [CommonModule, ProgressSpinnerModule, MessageModule, DialogModule, CardComponent],
+  imports: [
+    CommonModule,
+    ProgressSpinnerModule,
+    MessageModule,
+    DialogModule,
+    CardComponent,
+    CustomPaginatorComponent
+  ],
   templateUrl: './list-cards.page.html',
   styleUrls: ['./list-cards.page.css'],
 })
@@ -30,91 +49,108 @@ export class ListCardsComponent implements OnInit, OnDestroy {
   cards: Card[] = [];
   meta!: PaginationMeta;
 
-  readonly limit = 1; // una tarjeta por página
+  readonly limit = 1;
 
-  // estado de consulta (lo manda al servidor)
-  private page$ = new BehaviorSubject<number>(1);      // 1-based
+  private page$ = new BehaviorSubject<number>(1);
   private shuffle$ = new BehaviorSubject<boolean>(false);
   private reverse$ = new BehaviorSubject<boolean>(false);
 
-  get page()    { return this.page$.value; }
+  get page() { return this.page$.value; }
   get shuffle() { return this.shuffle$.value; }
   get reverse() { return this.reverse$.value; }
 
-  // ===== Modal de imagen =====
   showImage = false;
   modalImageUrl: string | null = null;
 
   ngOnInit(): void {
     combineLatest([
-      this.route.paramMap.pipe(map(pm => pm.get('id') ?? '')),
+      this.route.paramMap.pipe(map((pm) => pm.get('id') ?? '')),
       this.page$,
       this.shuffle$,
       this.reverse$,
     ])
-    .pipe(
-      switchMap(([id, page, shuffle, reverse]) => {
-        this.groupId = id;
-        this.loading = true;
-        this.error = null;
-
-        return this.cardsSrv.list({
-          groupId: id,
-          enabled: true,
-          page,
+      .pipe(
+        switchMap(([id, page, shuffle, reverse]) => {
+          this.groupId = id;
+          this.loading = true;
+          this.error = null;
+          return this.cardsSrv
+            .list({
+              groupId: id,
+              enabled: true,
+              page,
+              limit: this.limit,
+              shuffle,
+              reverse,
+            })
+            .pipe(
+              catchError((err) => {
+                console.error(err);
+                this.error = 'No se pudieron cargar las tarjetas.';
+                const fallbackMeta: PaginationMeta = {
+                  total: 0,
+                  page,
+                  limit: this.limit,
+                  pages: 0,
+                };
+                return of({ data: [] as Card[], meta: fallbackMeta });
+              })
+            );
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(({ data, meta }) => {
+        this.cards = data ?? [];
+        this.meta = meta ?? {
+          total: 0,
+          page: this.page,
           limit: this.limit,
-          shuffle,   // backend baraja
-          reverse,   // backend invierte english/spanish en la respuesta
-        }).pipe(
-          catchError(err => {
-            console.error(err);
-            this.error = 'No se pudieron cargar las tarjetas.';
-            const fallbackMeta: PaginationMeta = { total: 0, page, limit: this.limit, pages: 0 };
-            return of({ data: [] as Card[], meta: fallbackMeta });
-          })
-        );
-      }),
-      takeUntil(this.destroy$)
-    )
-    .subscribe(({ data, meta }) => {
-      this.cards = data ?? [];
-      this.meta = meta ?? { total: 0, page: this.page, limit: this.limit, pages: 0 };
-      this.loading = false;
-    });
+          pages: 0,
+        };
+        this.loading = false;
+      });
+
+    fromEvent<KeyboardEvent>(document, 'keydown')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => {
+        if (this.loading) return;
+        if (event.key === 'ArrowLeft') {
+          event.preventDefault();
+          this.goPrev();
+        } else if (event.key === 'ArrowRight') {
+          event.preventDefault();
+          this.goNext();
+        }
+      });
   }
 
-  // ===== Navegación personalizada (flechas) =====
-  get totalRecords(): number {
-    return this.meta?.total ?? 0;
-  }
+  get totalRecords(): number { return this.meta?.total ?? 0; }
   get totalPages(): number {
     const t = this.totalRecords;
     return t > 0 ? Math.ceil(t / this.limit) : 0;
   }
-  get currentPage(): number {
-    return this.meta?.page ?? this.page;
-  }
-  get isFirstPage(): boolean {
-    return this.currentPage <= 1;
-  }
-  get isLastPage(): boolean {
-    return this.currentPage >= this.totalPages;
-  }
-  get currentIndex(): number {
-    // 1 tarjeta por página → índice visible == página actual
-    return Math.min(this.currentPage, this.totalRecords || 0);
+  get currentPage(): number { return this.meta?.page ?? this.page; }
+  get isFirstPage(): boolean { return this.currentPage <= 1; }
+  get isLastPage(): boolean { return this.currentPage >= this.totalPages; }
+
+  // --- 3. NUEVO MÉTODO PARA MANEJAR EL CAMBIO DE PÁGINA ---
+  onPageChange(newPage: number): void {
+    this.page$.next(newPage);
   }
 
+  // Los métodos goPrev y goNext siguen funcionando para las flechas del teclado
   goPrev() {
+    if (this.shuffle) this.shuffle$.next(false);
     if (!this.isFirstPage) this.page$.next(this.currentPage - 1);
   }
+
   goNext() {
+    if (this.shuffle) this.shuffle$.next(false);
     if (!this.isLastPage) this.page$.next(this.currentPage + 1);
   }
 
-  // ===== Controles de consulta =====
   toggleShuffle() {
-    this.shuffle$.next(!this.shuffle);
+    this.shuffle$.next(true);
     this.page$.next(1);
   }
 
@@ -123,7 +159,6 @@ export class ListCardsComponent implements OnInit, OnDestroy {
     this.page$.next(1);
   }
 
-  // ===== Modal imagen =====
   openImageInModal(url?: string | null) {
     if (!url) return;
     this.modalImageUrl = url;

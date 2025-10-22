@@ -14,14 +14,11 @@ export interface PaginationMeta {
 }
 
 export interface Group {
-  _id: string;
-  name: string;
-  slug: string;
-  iconUrl?: string | null;
-  order?: number;
-  enabled: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+    _id: string;
+    name: string;
+    description: string;
+    slug: string;
+    enabled: boolean;
 }
 
 export interface Card {

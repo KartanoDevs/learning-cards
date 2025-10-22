@@ -1,65 +1,111 @@
-import { Group } from './../../api/models';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
+import { Subscription } from 'rxjs';
+
+// Importación del servicio y modelos
 import { GroupsService } from '../../api/groups.service';
+import { Group } from '../../api/models';
+
+// Módulos PrimeNG
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+
+// --- 1. IMPORTAR EL NUEVO COMPONENTE REUTILIZABLE ---
+import { CustomPaginatorComponent } from '../../components/shared/custom-paginator/custom-paginator.component';
+
 @Component({
-  selector: 'app-list-groups',
+  selector: 'app-list-groups-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    InputTextModule,
+    ButtonModule,
+    RippleModule,
+    HttpClientModule,
+    CustomPaginatorComponent // <-- 2. AÑADIR A LOS IMPORTS
+  ],
   templateUrl: './list-groups.page.html',
   styleUrls: ['./list-groups.page.css'],
 })
-export class ListGroupsPage implements OnInit {
-  private groupsSvc = inject(GroupsService);
+export class ListGroupsPage implements OnInit, OnDestroy {
   private router = inject(Router);
+  private groupsService = inject(GroupsService);
 
-  search = '';
-  loading = true;
-  groups: Group[] = [];
-  errorMsg = '';
+  public allGroups: Group[] = [];
+  public filteredGroups: Group[] = [];
+  public paginatedGroups: Group[] = [];
+  public searchTerm: string = '';
+  public hoveredGroupId: string | null = null;
+  private dataSubscription?: Subscription;
+
+  public rows: number = 10;
+  public currentPage: number = 1;
 
   ngOnInit(): void {
-    this.fetch();
+    this.loadGroups();
   }
 
-  async fetch() {
-    this.loading = true;
-    this.errorMsg = '';
-    try {
-      const data = await this.groupsSvc.list({ enabled: true }).toPromise();
-      // 🔧 Evita duplicados por _id
-      const uniqueMap = new Map<string, Group>();
-      (data ?? []).forEach((g) => uniqueMap.set(g._id, g));
-      this.groups = Array.from(uniqueMap.values()).sort(
-        (a, b) =>
-          (a.order ?? 0) - (b.order ?? 0) || a.name.localeCompare(b.name)
+  ngOnDestroy(): void {
+    this.dataSubscription?.unsubscribe();
+  }
+
+  loadGroups(): void {
+    this.dataSubscription = this.groupsService.list({ enabled: true }).subscribe({
+      next: (data: Group[]) => {
+        this.allGroups = data;
+        this.filterGroups();
+      },
+      error: (err: any) => {
+        console.error('Error al cargar grupos:', err);
+      }
+    });
+  }
+
+  filterGroups(): void {
+    const term = this.searchTerm.toLowerCase().trim();
+    if (!term) {
+      this.filteredGroups = this.allGroups;
+    } else {
+      this.filteredGroups = this.allGroups.filter(group =>
+        group.name.toLowerCase().includes(term) ||
+        (group.description && group.description.toLowerCase().includes(term))
       );
-    } catch (e: any) {
-      this.errorMsg = e?.message || 'Error cargando grupos';
-    } finally {
-      this.loading = false;
     }
+    this.currentPage = 1;
+    this.updatePaginatedView();
   }
 
-  // Lista filtrada (cliente)
-  get filtered(): Group[] {
-    const q = this.search.trim().toLowerCase();
-    if (!q) return this.groups;
-    return this.groups.filter(
-      (g) =>
-        (g.name ?? '').toLowerCase().includes(q) ||
-        (g.slug ?? '').toLowerCase().includes(q)
-    );
+  // --- 3. NUEVO MÉTODO PARA MANEJAR EL CAMBIO DE PÁGINA DESDE EL COMPONENTE HIJO ---
+  onPageChange(newPage: number): void {
+    this.currentPage = newPage;
+    this.updatePaginatedView();
   }
 
-  trackById(_i: number, g: Group) {
-    return g._id;
+  get totalPages(): number {
+    return Math.ceil(this.filteredGroups.length / this.rows);
   }
 
-  go(g: Group) {
-    if (!g?._id) return;
-    this.router.navigate(['/list-cards', g._id]);
+  private updatePaginatedView(): void {
+    const startIndex = (this.currentPage - 1) * this.rows;
+    const endIndex = startIndex + this.rows;
+    this.paginatedGroups = this.filteredGroups.slice(startIndex, endIndex);
+  }
+
+  selectGroup(groupId: string): void {
+    this.router.navigate(['/list-cards', groupId]);
+  }
+
+  onMouseEnter(groupId: string): void {
+    this.hoveredGroupId = groupId;
+  }
+
+  onMouseLeave(): void {
+    this.hoveredGroupId = null;
   }
 }
+

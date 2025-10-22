@@ -11,8 +11,6 @@ import type { Card } from '../../../api/models';
 })
 export class CardComponent {
   @Input() card!: Card; // el servidor ya trae english/spanish (o invertidos si reverse=true)
-  @Output() openImage = new EventEmitter<string | null>();
-  @Output() openSound = new EventEmitter<string>();
 
   flipped = false;
 
@@ -23,16 +21,13 @@ export class CardComponent {
     return this.card?.spanish ?? '';
   }
 
-  toggleFlip() { this.flipped = !this.flipped; }
-
-  onOpenImage(ev: Event) {
-    ev.stopPropagation();
-    this.openImage.emit(this.card?.imageUrl ?? null);
+  getImg(): string {
+    console.log(this.card);
+    console.log(this.card?.imageUrl ?? '');
+    return this.card?.imageUrl ?? '';
   }
 
-  onOpenSound(ev: Event) {
-    ev.stopPropagation();
-    const text = this.frontText || '';
-    this.openSound.emit(text);
+  toggleFlip() {
+    this.flipped = !this.flipped;
   }
 }

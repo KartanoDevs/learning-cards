@@ -10,32 +10,16 @@
 >
   <div class="card-inner">
     <div class="card-front">
-      <p class="heading">{{ frontText }}</p>
+      <div class="heading">{{ frontText }}</div>
+      <div
+        class="img"
+        *ngIf="getImg()"
+        [style.background-image]="'url(' + getImg() + ')'"
+      ></div>
     </div>
 
     <div class="card-back">
-      <p class="heading">{{ backText }}</p>
-
-      <div class="subtext icon-row">
-        <span
-          class="pi pi-image action-btn hover-fill hover-ring"
-          role="button" tabindex="0" aria-label="Abrir imagen"
-          (click)="onOpenImage($event)"
-          (keydown.enter)="onOpenImage($event)"
-          (keydown.space)="onOpenImage($event); $event.preventDefault()"
-          [class.disabled]="!card?.imageUrl"
-          title="Abrir imagen">
-        </span>
-
-        <span
-          class="pi pi-volume-up action-btn hover-fill hover-ring"
-          role="button" tabindex="0" aria-label="Reproducir sonido"
-          (click)="onOpenSound($event)"
-          (keydown.enter)="onOpenSound($event)"
-          (keydown.space)="onOpenSound($event); $event.preventDefault()"
-          title="Reproducir sonido">
-        </span>
-      </div>
+      <div class="heading">{{ backText }}</div>
     </div>
   </div>
 </div>

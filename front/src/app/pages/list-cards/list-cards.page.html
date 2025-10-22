@@ -7,45 +7,24 @@
 
   <ng-container *ngIf="!loading && !error">
     <ng-container *ngIf="cards.length; else empty">
-      <!-- Tarjeta (el servidor ya aplica reverse si corresponde) -->
+      <!-- Tarjeta -->
       <app-card
         [card]="cards[0]"
-        (openImage)="openImageInModal($event)"
       ></app-card>
 
-      <!-- ===== Barra de navegación con flechas ===== -->
-      <div class="navbar">
-        <button
-          type="button"
-          class="nav-btn"
-          (click)="goPrev()"
-          [disabled]="isFirstPage"
-          aria-label="Anterior"
-          title="Anterior"
-        >
-          <i class="pi pi-angle-left"></i>
-        </button>
-
-        <div class="nav-info">
-          <span class="page-chip">Registro {{ currentPage }} de {{ totalPages }}</span>
-        </div>
-
-        <button
-          type="button"
-          class="nav-btn"
-          (click)="goNext()"
-          [disabled]="isLastPage"
-          aria-label="Siguiente"
-          title="Siguiente"
-        >
-          <i class="pi pi-angle-right"></i>
-        </button>
-      </div>
+      <!-- ===== PAGINADOR ACTUALIZADO CON LA ETIQUETA PERSONALIZADA ===== -->
+      <app-custom-paginator
+        *ngIf="totalPages > 1"
+        [currentPage]="currentPage"
+        [totalPages]="totalPages"
+        (pageChange)="onPageChange($event)"
+        [label]="'Tarjeta'"
+      ></app-custom-paginator>
 
       <!-- Controles de consulta -->
       <div class="controls">
         <button type="button" class="btn" (click)="toggleShuffle()">
-          {{ shuffle ? 'Quitar Shuffle' : 'Shuffle' }}
+          {{ shuffle ?  'Shuffle' : 'Shuffle' }}
         </button>
         <button type="button" class="btn" (click)="toggleReverse()">
           {{ reverse ? 'Quitar Reverse' : 'Reverse' }}
@@ -58,7 +37,7 @@
     </ng-template>
   </ng-container>
 
-  <!-- ===== Modal de imagen ===== -->
+  <!-- Modal de imagen -->
   <p-dialog
     [(visible)]="showImage"
     [modal]="true"
@@ -83,3 +62,4 @@
     </div>
   </p-dialog>
 </section>
+
