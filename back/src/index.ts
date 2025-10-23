@@ -9,8 +9,11 @@ const app = createApp();
 // Aseguramos número
 const PORT = Number(ENV.PORT || 4000);
 
-const server = app.listen(PORT, () => {
-  console.log(`🚀 API escuchando en http://localhost:${PORT}`);
+// En producción, escuchamos en 0.0.0.0 para aceptar conexiones externas
+const HOST = ENV.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+
+const server = app.listen(PORT, HOST, () => {
+  console.log(`🚀 API escuchando en http://${HOST}:${PORT}`);
 });
 
 // Conecta a Mongo SIN bloquear el arranque del servidor

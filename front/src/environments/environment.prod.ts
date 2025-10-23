@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://tuservidor.com/api'
+  apiBaseUrl: 'https://learning-cards-a35l.onrender.com/api'
 };
