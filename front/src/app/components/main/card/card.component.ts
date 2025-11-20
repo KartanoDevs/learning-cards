@@ -15,10 +15,10 @@ export class CardComponent {
   flipped = false;
 
   get frontText(): string {
-    return this.card?.english ?? '';
+    return this.card?.spanish ?? '';
   }
   get backText(): string {
-    return this.card?.spanish ?? '';
+    return this.card?.english ?? '';
   }
 
   getImg(): string {

@@ -48,7 +48,12 @@ body {
 }
 
 /* ===== Utilidades ===== */
-.container { width: min(1200px,88vw); margin-inline: auto; }
+/*
+  La clase .container define un contenedor central para el contenido principal.
+  - width: 96vw; -> El ancho será siempre el 96% del ancho de la ventana gráfica (viewport).
+  - margin-inline: auto; -> Centra el contenedor horizontalmente dentro de su elemento padre.
+*/
+.container { width: 96vw; margin-inline: auto; }
 .elev-1 { box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08); }
 .round { border-radius: 12px; }
 
@@ -145,7 +150,6 @@ body {
 }
 
 .admin-view.container{
-    max-width: 1200px;
     width: 100%;
     margin: 0 auto;
     box-sizing: border-box;

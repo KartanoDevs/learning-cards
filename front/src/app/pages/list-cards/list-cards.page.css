@@ -31,10 +31,10 @@ html, body {
 
 .cards-wrap {
   min-height: 40vh;             /* 👉 ocupa todo el alto de la ventana */
+  max-width: 95vw;
   display: flex;
   flex-direction: column;
   justify-content: space-between; /* distribuye arriba/abajo */
-  max-width: 960px;
   margin: 0 auto;
   padding: 16px;
 }
