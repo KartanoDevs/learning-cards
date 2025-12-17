@@ -27,8 +27,9 @@
         ><i class="pi pi-times"></i></button>
       </div>
     </div>
-    <!-- Botón de Añadir con el nuevo estilo -->
+    <!-- Botones de acción -->
     <div class="add-item-container">
+      <!-- Añadir tarjeta -->
       <div
         class="group-item add-item"
         role="button"
@@ -39,6 +40,12 @@
         <i class="pi pi-plus folder-icon"></i>
         <span class="group-name">Añadir Tarjeta</span>
       </div>
+<!-- Visualizar tarjetas del tema actual (usa el mismo patrón que selectGroup) -->
+<div class="group-item add-item" role="button" tabindex="0" (click)="viewTopicCards()"
+  [class.disabled]="!initialGroupIdFilter" tooltipPosition="top">
+  <i class="pi pi-eye folder-icon"></i>
+  <span class="group-name">Visualizar tarjetas tema</span>
+</div>
     </div>
   </div>
 
@@ -53,8 +60,9 @@
   >
     <ng-template pTemplate="header">
       <tr>
-        <th style="width:25%" pSortableColumn="english">Inglés <p-sortIcon field="english"></p-sortIcon></th>
         <th style="width:25%" pSortableColumn="spanish">Español <p-sortIcon field="spanish"></p-sortIcon></th>
+        <th style="width:25%" pSortableColumn="english">Inglés <p-sortIcon field="english"></p-sortIcon></th>
+        <th style="width:10%" pSortableColumn="order">Orden <p-sortIcon field="order"></p-sortIcon></th>
         <th style="width:15%" pSortableColumn="groupId">Tema <p-sortIcon field="groupId"></p-sortIcon></th>
         <th style="width:20%">Imagen</th>
         <th class="text-center">Visible</th>
@@ -64,18 +72,32 @@
 
     <ng-template pTemplate="body" let-card let-editing="editing" let-ri="rowIndex">
       <tr [pEditableRow]="card">
-        <!-- Columna Inglés -->
-        <td>
-          <p-cellEditor>
-            <ng-template pTemplate="input"><input pInputText type="text" [(ngModel)]="card.english" class="p-inputtext-sm"></ng-template>
-            <ng-template pTemplate="output">{{ card.english }}</ng-template>
-          </p-cellEditor>
-        </td>
         <!-- Columna Español -->
         <td>
           <p-cellEditor>
-            <ng-template pTemplate="input"><input pInputText type="text" [(ngModel)]="card.spanish" class="p-inputtext-sm"></ng-template>
+            <ng-template pTemplate="input">
+              <textarea pInputTextarea [(ngModel)]="card.spanish" rows="3" class="w-full"
+                (keydown.enter)="$event.stopPropagation()"></textarea>
+            </ng-template>
             <ng-template pTemplate="output">{{ card.spanish }}</ng-template>
+          </p-cellEditor>
+        </td>
+        <!-- Columna Inglés -->
+        <td>
+          <p-cellEditor>
+            <ng-template pTemplate="input">
+              <textarea pInputTextarea [(ngModel)]="card.english" rows="3" class="w-full"
+                (keydown.enter)="$event.stopPropagation()"></textarea>
+            </ng-template>
+            <ng-template pTemplate="output">{{ card.english }}</ng-template>
+          </p-cellEditor>
+        </td>
+        <!-- Columna Orden -->
+        <td>
+          <p-cellEditor>
+            <ng-template pTemplate="input"><input pInputText type="number" [(ngModel)]="card.order"
+                class="p-inputtext-sm"></ng-template>
+            <ng-template pTemplate="output">{{ card.order }}</ng-template>
           </p-cellEditor>
         </td>
         <!-- Columna Tema (Grupo) -->

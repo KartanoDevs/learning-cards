@@ -28,7 +28,11 @@ async function listCardsImpl(req: Request, res: Response, _next: NextFunction) {
   if (q && q.trim().length > 0) filter.$text = { $search: q };
 
   const pageNum = Math.max(parseInt(page ?? '1', 10) || 1, 1);
-  const lim = Math.min(Math.max(parseInt(limit ?? '20', 10) || 20, 1), 100);
+
+  const DEFAULT_LIMIT = 20;
+  const MAX_LIMIT = 9999;
+  const requestedLimit = parseInt( limit ?? String( DEFAULT_LIMIT ), 10 ) || DEFAULT_LIMIT;
+  const lim = Math.min( Math.max( requestedLimit, 1 ), MAX_LIMIT );
   const wantShuffle = shuffle === 'true';
 
   if (wantShuffle) {
@@ -49,12 +53,37 @@ async function listCardsImpl(req: Request, res: Response, _next: NextFunction) {
     });
   }
 
-  // Orden lógico por defecto
-  const [items, total] = await Promise.all([
-    Card.find(filter).sort({ order: 1, createdAt: -1 }).skip((pageNum - 1) * lim).limit(lim).lean(),
-    Card.countDocuments(filter),
-  ]);
+  // Orden lógico por defecto modificado: 1..N primero, luego 0s (y vacíos), desempatando por español
+  // Usamos aggregation para crear un campo calculado 'effectiveOrder'
+  const pipeline: any[] = [
+    { $match: filter },
+    {
+      $addFields: {
+        effectiveOrder: {
+          $cond: {
+            if: { $gt: [ '$order', 0 ] },
+            then: '$order',
+            else: 999999999 // Valor alto para enviarlos al final
+          }
+        }
+      }
+    },
+    { $sort: { effectiveOrder: 1, spanish: 1 } }, // Orden principal y desempate
+    {
+      $facet: {
+        metadata: [ { $count: 'total' } ],
+        data: [ { $skip: ( pageNum - 1 ) * lim }, { $limit: lim } ]
+      }
+    }
+  ];
+
+  const [ result ] = await Card.aggregate( pipeline );
+
+  const total = result.metadata[ 0 ]?.total ?? 0;
+  const items = result.data ?? [];
+
   const data = applyReverse(items as any[], reverse === 'true');
+
   return res.json({
     ok: true,
     data,

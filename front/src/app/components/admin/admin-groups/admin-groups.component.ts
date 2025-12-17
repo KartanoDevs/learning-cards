@@ -123,6 +123,19 @@ export class AdminGroupsComponent implements OnInit {
   onRowEditInit(group: Group) {
     console.log("Iniciando edición de:", group.name);
     this.clonedGroups[group._id] = { ...group };
+    
+    // Ajustar textareas después de que Angular renderice la fila en modo edición
+    setTimeout(() => {
+      // Buscar todos los textareas visibles en modo edición dentro de la tabla
+      const textareas = document.querySelectorAll('.p-datatable-ngx .auto-resize-textarea') as NodeListOf<HTMLTextAreaElement>;
+      textareas.forEach(textarea => {
+        if (textarea.offsetParent !== null) { // Solo los visibles
+          textarea.style.height = 'auto';
+          const newHeight = Math.max(textarea.scrollHeight, 40);
+          textarea.style.height = `${newHeight}px`;
+        }
+      });
+    }, 10);
   }
 
   addNewGroupRow() {
@@ -298,6 +311,23 @@ export class AdminGroupsComponent implements OnInit {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cambiar la visibilidad' })
       }
     });
+  }
+
+  /**
+   * Ajusta automáticamente la altura del textarea según su contenido.
+   * Utiliza scrollHeight para calcular la altura necesaria sin scroll.
+   * 
+   * @param event - Evento de input del textarea
+   */
+  autoResize(event: Event): void {
+    const textarea = event.target as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    // Reset height to get accurate scrollHeight
+    textarea.style.height = 'auto';
+    // Set new height based on content (scrollHeight includes padding)
+    const newHeight = Math.max(textarea.scrollHeight, 40); // Mínimo 40px
+    textarea.style.height = `${newHeight}px`;
   }
 
   // Esta función ya no se usa, la hemos reemplazado por addNewGroupRow

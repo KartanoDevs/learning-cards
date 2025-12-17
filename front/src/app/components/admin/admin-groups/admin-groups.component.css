@@ -136,6 +136,7 @@
   transform: scale(0.7);
   transform-origin: center right;
   flex-shrink: 0;
+  display: flex;
 }
 
 .group-item {
@@ -214,7 +215,28 @@ textarea {
   border: 1px solid;
   border-color: var(--brand-500);
   background-color: rgba(37, 99, 235, 0.05);
-      border-radius: 12px;
+  border-radius: 12px;
   transform: translateY(-3px);
   box-shadow: 0 6px 15px rgba(37, 99, 235, 0.15);
+}
+
+/* Estilos específicos para textareas con auto-resize */
+:host ::ng-deep .auto-resize-textarea {
+  min-height: 40px;
+  max-height: 300px;
+  resize: none;
+  overflow-y: auto;
+  width: 100%;
+  padding: 0.75rem;
+  line-height: 1.5;
+  transition: height 0.1s ease-out;
+}
+
+/* Asegurar que las celdas de edición tengan suficiente espacio */
+:host ::ng-deep .p-datatable-ngx .p-datatable-tbody > tr > td:first-child,
+:host ::ng-deep .p-datatable-ngx .p-datatable-tbody > tr > td:nth-child(2) {
+  min-width: 200px;
+  vertical-align: top;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }

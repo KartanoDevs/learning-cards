@@ -10,10 +10,15 @@
 >
   <div class="card-inner">
     <div class="card-front">
-      <div class="heading">{{ frontText }}</div>
+      <div
+        class="heading"
+        [ngClass]="{ 'heading-with-image': hasImage() }"
+      >
+        {{ frontText }}
+      </div>
       <div
         class="img"
-        *ngIf="getImg()"
+        *ngIf="hasImage()"
         [style.background-image]="'url(' + getImg() + ')'"
       ></div>
     </div>

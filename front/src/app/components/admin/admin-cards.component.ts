@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
@@ -54,6 +54,7 @@ export class AdminCardsComponent implements OnInit {
   private groupsService = inject(GroupsService);
   private messageService = inject(MessageService);
   private route = inject(ActivatedRoute);
+  private router = inject( Router );
 
   // Estado del componente
   allCards: Card[] = [];
@@ -146,6 +147,16 @@ export class AdminCardsComponent implements OnInit {
     this.updatePaginatedView();
   }
 
+  viewTopicCards(): void
+  {
+    if ( !this.initialGroupIdFilter )
+    {
+      return;
+    }
+    // Mismo patrón que ListGroupsPage.selectGroup
+    this.router.navigate( [ '/list-cards', this.initialGroupIdFilter ] );
+  }
+
   onRowEditInit(card: Card) {
     this.clonedCards[card._id] = { ...card };
   }
@@ -165,6 +176,7 @@ export class AdminCardsComponent implements OnInit {
       english: '',
       spanish: '',
       groupId: this.initialGroupIdFilter ?? (this.groups[0]?._id ?? ''), // Asigna el grupo filtrado o el primero por defecto
+      order: 0,
       enabled: true,
       imageUrl: ''
     };
@@ -192,6 +204,7 @@ export class AdminCardsComponent implements OnInit {
         english: card.english,
         spanish: card.spanish,
         groupId: card.groupId,
+        order: card.order,
         enabled: card.enabled,
         imageUrl: card.imageUrl
       };
@@ -209,6 +222,7 @@ export class AdminCardsComponent implements OnInit {
       if (originalCard.english !== card.english) payload.english = card.english;
       if (originalCard.spanish !== card.spanish) payload.spanish = card.spanish;
       if (originalCard.groupId !== card.groupId) payload.groupId = card.groupId;
+      if ( originalCard.order !== card.order ) payload.order = card.order;
       if (originalCard.imageUrl !== card.imageUrl) payload.imageUrl = card.imageUrl;
 
       if (Object.keys(payload).length > 0) {

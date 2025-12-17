@@ -151,6 +151,7 @@ textarea,
   transform: scale(0.7);
   transform-origin: center right;
   flex-shrink: 0;
+  display: flex;
 }
 
 .group-item {
@@ -168,6 +169,7 @@ textarea,
   background-color: var(--surface-0);
   transition: all 0.2s ease-in-out;
   box-shadow: 0 2px 4px rgba(15, 23, 42, 0.05);
+  margin-left: 10px;
 }
 
 .group-item:hover:not(.disabled) {

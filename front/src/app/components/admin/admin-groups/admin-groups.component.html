@@ -54,8 +54,8 @@
   >
     <ng-template pTemplate="header">
       <tr>
-        <th style="width:25%" pSortableColumn="name">Nombre <p-sortIcon field="name"></p-sortIcon></th>
-        <th style="width:40%" pSortableColumn="description">Descripción <p-sortIcon field="description"></p-sortIcon></th>
+        <th style="width:30%" pSortableColumn="name">Nombre <p-sortIcon field="name"></p-sortIcon></th>
+        <th style="width:45%" pSortableColumn="description">Descripción <p-sortIcon field="description"></p-sortIcon></th>
         <th style="width:10rem" class="text-center">Nº Tarjetas</th>
         <th class="text-center">Visible</th>
         <th style="width:10rem" class="text-center">Acciones</th>
@@ -66,13 +66,13 @@
       <tr [pEditableRow]="group">
         <td>
           <p-cellEditor>
-            <ng-template pTemplate="input"><input pInputText type="text" [(ngModel)]="group.name" class="p-inputtext-sm"></ng-template>
+            <ng-template pTemplate="input"><textarea pTextarea [(ngModel)]="group.name" rows="1" class="w-full p-inputtext-sm auto-resize-textarea" (input)="autoResize($event)"></textarea></ng-template>
             <ng-template pTemplate="output">{{ group.name }}</ng-template>
           </p-cellEditor>
         </td>
         <td>
           <p-cellEditor>
-            <ng-template pTemplate="input"><textarea pTextarea [(ngModel)]="group.description" rows="3" class="w-full p-inputtext-sm"></textarea></ng-template>
+            <ng-template pTemplate="input"><textarea pTextarea [(ngModel)]="group.description" rows="1" class="w-full p-inputtext-sm auto-resize-textarea" (input)="autoResize($event)"></textarea></ng-template>
             <ng-template pTemplate="output">{{ group.description }}</ng-template>
           </p-cellEditor>
         </td>

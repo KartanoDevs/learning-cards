@@ -22,9 +22,12 @@ export class CardComponent {
   }
 
   getImg(): string {
-    console.log(this.card);
-    console.log(this.card?.imageUrl ?? '');
     return this.card?.imageUrl ?? '';
+  }
+
+  hasImage(): boolean {
+    const imgUrl = this.getImg();
+    return !!imgUrl && imgUrl.trim().length > 0;
   }
 
   toggleFlip() {
