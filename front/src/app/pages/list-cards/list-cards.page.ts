@@ -149,9 +149,12 @@ export class ListCardsComponent implements OnInit, OnDestroy {
     if (!this.isLastPage) this.page$.next(this.currentPage + 1);
   }
 
-  toggleShuffle() {
+  shuffleOne()
+  {
+    // Muestra UNA carta aleatoria sin cambiar el modo shuffle
+    const randomPage = Math.floor( Math.random() * this.totalPages ) + 1;
     this.shuffle$.next(true);
-    this.page$.next(1);
+    this.page$.next( randomPage );
   }
 
   toggleReverse() {

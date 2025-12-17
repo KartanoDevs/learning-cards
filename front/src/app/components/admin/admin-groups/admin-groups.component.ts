@@ -105,6 +105,27 @@ export class AdminGroupsComponent implements OnInit {
         (group.description && group.description.toLowerCase().includes(term))
       );
     }
+
+    // Ordenar: primero los visibles (enabled=true), luego por nombre
+    // Ordenar: Favs > Visibles > Última modificación
+    this.filteredGroups.sort( ( a, b ) =>
+    {
+      // 1. Favoritos primero
+      if ( a.fav !== b.fav )
+      {
+        return a.fav ? -1 : 1;
+      }
+      // 2. Visibles (enabled) después
+      if ( a.enabled !== b.enabled )
+      {
+        return a.enabled ? -1 : 1;
+      }
+      // 3. Fecha de modificación (más reciente primero)
+      const dateA = a.updatedAt ? new Date( a.updatedAt ).getTime() : 0;
+      const dateB = b.updatedAt ? new Date( b.updatedAt ).getTime() : 0;
+      return dateB - dateA;
+    } );
+
     this.currentPage = 1;
     this.updatePaginatedView();
   }
@@ -153,7 +174,8 @@ export class AdminGroupsComponent implements OnInit {
       name: '',
       description: '',
       slug: '',
-      enabled: true
+      enabled: true,
+      fav: false
     };
 
     this.allGroups.unshift(newGroup);
@@ -193,10 +215,11 @@ export class AdminGroupsComponent implements OnInit {
       }
 
       const slug = this.slugify(group.name);
-      const payload: Pick<Group, 'name' | 'slug' | 'description'> = {
+      const payload: Pick<Group, 'name' | 'slug' | 'description' | 'fav'> = {
         name: group.name,
         slug: slug,
-        description: group.description
+        description: group.description,
+        fav: group.fav
       };
 
       this.groupsService.create(payload).subscribe({
@@ -311,6 +334,26 @@ export class AdminGroupsComponent implements OnInit {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cambiar la visibilidad' })
       }
     });
+  }
+
+  toggleGroupFav( group: Group ): void
+  {
+    const newFavState = !group.fav;
+    this.groupsService.update( group._id, { fav: newFavState } ).subscribe( {
+      next: ( updatedGroup: Group ) =>
+      {
+        // Actualizamos listas en local
+        const idxAll = this.allGroups.findIndex( g => g._id === updatedGroup._id );
+        if ( idxAll > -1 ) this.allGroups[ idxAll ].fav = updatedGroup.fav;
+
+        const idxFiltered = this.filteredGroups.findIndex( g => g._id === updatedGroup._id );
+        if ( idxFiltered > -1 ) this.filteredGroups[ idxFiltered ].fav = updatedGroup.fav;
+
+        this.updatePaginatedView();
+        this.messageService.add( { severity: 'success', summary: 'Éxito', detail: updatedGroup.fav ? 'Añadido a favoritos' : 'Eliminado de favoritos' } );
+      },
+      error: () => this.messageService.add( { severity: 'error', summary: 'Error', detail: 'No se pudo actualizar favoritos' } )
+    } );
   }
 
   /**

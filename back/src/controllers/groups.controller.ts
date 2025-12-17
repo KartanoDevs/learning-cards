@@ -18,7 +18,7 @@ export const listGroups = asyncHandler(async (req: Request, res: Response) => {
 // POST /api/groups
 export const createGroup = asyncHandler(async (req: Request, res: Response) => {
   // 1. Leemos 'description' del body
-  const { name, slug, iconUrl, order, enabled, description } = req.body;
+  const { name, slug, iconUrl, order, enabled, description, fav } = req.body;
 
   if (!name || !slug) {
     return res.status(400).json({ ok: false, message: 'name y slug son obligatorios' });
@@ -41,6 +41,7 @@ export const createGroup = asyncHandler(async (req: Request, res: Response) => {
     iconUrl: iconUrl ?? null,
     order: typeof order === 'number' ? order : 0,
     enabled: enabled ?? true,
+    fav: fav ?? false,
   });
 
   res.status(201).json({ ok: true, data: group });
@@ -100,7 +101,7 @@ export const showGroup = asyncHandler(async (req: Request, res: Response) => {
 // PATCH /api/groups/:id
 export const updateGroup = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, description } = req.body; // Obtenemos name y description del body
+  const { name, description, fav } = req.body; // Obtenemos name, description y FAV del body
 
   if (!id || !isValidObjectId(id)) {
     return res.status(400).json({ ok: false, message: 'ID inválida' });
@@ -110,6 +111,7 @@ export const updateGroup = asyncHandler(async (req: Request, res: Response) => {
   const updateData: any = {};
   if (name !== undefined) updateData.name = String(name).trim();
   if (description !== undefined) updateData.description = String(description).trim();
+  if ( fav !== undefined ) updateData.fav = Boolean( fav );
 
   // Si no se envió nada para actualizar (ej. body vacío)
   if (Object.keys(updateData).length === 0) {

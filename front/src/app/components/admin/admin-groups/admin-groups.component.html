@@ -93,7 +93,12 @@
             <button *ngIf="editing" pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-text action-cancel"
                     (click)="manualCancel(group, ri)"></button>
 
-            <button pButton pRipple type="button" [icon]="group.enabled ? 'pi pi-eye-slash' : 'pi pi-eye'" (click)="toggleGroupStatus(group)"></button>
+            <button pButton pRipple type="button" [icon]="group.enabled ? 'pi pi-eye' : 'pi pi-eye-slash'"
+              (click)="toggleGroupStatus(group)"></button>
+            
+            <!-- Botón Fav -->
+            <button pButton pRipple type="button" [icon]="group.fav ? 'pi pi-star-fill' : 'pi pi-star'"
+              class="p-button-rounded p-button-text p-button-warning" (click)="toggleGroupFav(group)"></button>
 
             <!-- Botón para ver/editar tarjetas del grupo -->
             <button pButton pRipple type="button" icon="pi pi-table"

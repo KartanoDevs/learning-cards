@@ -7,6 +7,7 @@ export interface GroupDoc extends Document {
   iconUrl?: string | null;
   order?: number;
   enabled: boolean;
+  fav: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -19,6 +20,7 @@ const GroupSchema = new Schema<GroupDoc>(
     iconUrl: { type: String, default: null },
     order: { type: Number, default: 0 },
     enabled: { type: Boolean, default: true },
+    fav: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

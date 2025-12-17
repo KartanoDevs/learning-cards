@@ -19,6 +19,9 @@ export interface Group {
     description: string;
     slug: string;
     enabled: boolean;
+  fav: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Card {

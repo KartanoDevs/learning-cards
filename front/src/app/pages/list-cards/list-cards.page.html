@@ -23,11 +23,11 @@
 
       <!-- Controles de consulta -->
       <div class="controls">
-        <button type="button" class="btn" (click)="toggleShuffle()">
-          {{ shuffle ?  'Shuffle' : 'Shuffle' }}
+        <button type="button" class="btn" (click)="shuffleOne()">
+          Shuffle One
         </button>
         <button type="button" class="btn" (click)="toggleReverse()">
-          {{ reverse ? 'Quitar Reverse' : 'Reverse' }}
+          {{ reverse ? 'Disable Reverse' : 'Enable Reverse' }}
         </button>
       </div>
     </ng-container>

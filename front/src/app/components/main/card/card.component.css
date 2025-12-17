@@ -108,7 +108,7 @@ body {
   width: 100%;
   transition: width 0.3s ease;
   box-sizing: border-box;
-  white-space: pre-wrap; /* Mantiene saltos de línea */
+  white-space: pre-line; /* Mantiene saltos de línea */
 }
 
 /* Heading en card-front: altura fija en porcentaje del contenedor */

@@ -43,7 +43,7 @@ export class ListGroupsPage implements OnInit, OnDestroy {
   public hoveredGroupId: string | null = null;
   private dataSubscription?: Subscription;
 
-  public rows: number = 26;
+  public rows: number = 30;
   public currentPage: number = 1;
 
   ngOnInit(): void {
@@ -76,6 +76,25 @@ export class ListGroupsPage implements OnInit, OnDestroy {
         (group.description && group.description.toLowerCase().includes(term))
       );
     }
+    // Ordenar: Favs > Visibles > Última modificación
+    this.filteredGroups.sort( ( a, b ) =>
+    {
+      // 1. Favoritos primero
+      if ( a.fav !== b.fav )
+      {
+        return a.fav ? -1 : 1;
+      }
+      // 2. Visibles (enabled) después
+      if ( a.enabled !== b.enabled )
+      {
+        return a.enabled ? -1 : 1;
+      }
+      // 3. Fecha de modificación (más reciente primero)
+      const dateA = a.updatedAt ? new Date( a.updatedAt ).getTime() : 0;
+      const dateB = b.updatedAt ? new Date( b.updatedAt ).getTime() : 0;
+      return dateB - dateA;
+    } );
+
     this.currentPage = 1;
     this.updatePaginatedView();
   }
